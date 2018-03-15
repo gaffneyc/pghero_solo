@@ -1,13 +1,23 @@
-FROM ruby:2.3.1
+FROM ruby:2-alpine
 MAINTAINER Brian Morton "bmorton@yammer-inc.com"
 
 # Install dependencies for gems
-RUN apt-get update -y && apt-get -y install libpq-dev
+RUN apk add --update --no-cache \
+  tzdata \
+  gcc \
+  make \
+  libc-dev \
+  libxml2-dev \
+  libxslt-dev \
+  postgresql-dev
 
 # Add and install gem dependencies
 ADD Gemfile       /app/Gemfile
 ADD Gemfile.lock  /app/Gemfile.lock
-RUN bash -l -c "cd /app && bundle install -j4"
+RUN sh -l -c "cd /app && bundle install -j4"
+
+# Remove build packages
+RUN apk del gcc make
 
 ADD . /app
 
